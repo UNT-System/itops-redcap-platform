@@ -189,9 +189,8 @@ param subnets object = {
     delegation: 'Microsoft.Web/serverFarms'
   }
   MySQLFlexSubnet: {
-    // TODO: /29 seems very small
-    // Two /26 have been allocated; that's equivalent to sixteen /29s.
-    addressPrefix: cidrSubnet(vnetAddressSpace, 29, 16)
+  // Allocate a /27 for MySQL Flexible Server to allow future growth and HA.
+  addressPrefix: cidrSubnet(vnetAddressSpace, 27, 4)
     serviceEndpoints: [
       {
         service: 'Microsoft.KeyVault'

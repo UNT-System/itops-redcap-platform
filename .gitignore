@@ -333,7 +333,12 @@ ASALocalRun/
 
 /*.json
 
-# Exclude Bicep parameter files
+# Exclude Bicep parameter files by default because they may contain secrets
 *.bicepparam
-# Except for the sample file
+
+# Track safe sample files
 !/*-sample.bicepparam
+
+# Track UNT environment configuration files.
+# These files MUST NOT contain passwords, SAS tokens, or other secrets.
+!/main-unts-redcap-*.bicepparam

@@ -23,7 +23,7 @@ Param(
 # Convert the .bicepparam file to JSON to read values that will be used to construct the deployment name
 $JsonParamFile = [System.IO.Path]::ChangeExtension($TemplateParameterFile, 'json')
 Write-Verbose $JsonParamFile
-bicep build-params $TemplateParameterFile --outfile $JsonParamFile
+az bicep build-params --file $TemplateParameterFile --outfile $JsonParamFile
 
 <# HACK: 2023-09-14: At this time, .bicepparam cannot be combined with inline parameters,
 which is needed to supply a new random database password. So we're using the JSON file here too. #>
