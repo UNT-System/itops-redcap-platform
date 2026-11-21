@@ -7,6 +7,9 @@ param workloadName = 'redcap'
 param namingConvention = '{workloadName}-{env}-{rtype}-{loc}-{seq}'
 param sequence = 1
 
+// Match the PHP runtime validated for the REDCap platform.
+param phpVersion = '8.5'
+
 // These parameters should be modified for your environment
 param identityObjectId = 'edc3bec0-2d45-495d-ab8c-6a0de54c051c'
 param vnetAddressSpace = '10.240.10.0/24'
