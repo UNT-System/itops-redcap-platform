@@ -12,6 +12,12 @@ param dbUserNameSecretRef string
 #disable-next-line secure-secrets-in-params
 param dbPasswordSecretRef string
 
+@description('Whether the App Service public endpoint is enabled.')
+param publicNetworkAccessEnabled bool = false
+
+@description('IPv4 CIDRs permitted to access the App Service public endpoint and SCM endpoint.')
+param allowedPublicIpCidrs array = []
+
 param peSubnetId string
 param privateDnsZoneId string
 param integrationSubnetId string
@@ -69,6 +75,7 @@ resource webApp 'Microsoft.Web/sites@2023-12-01' = {
   tags: tags
   properties: {
     httpsOnly: true
+    publicNetworkAccess: publicNetworkAccessEnabled ? 'Enabled' : 'Disabled'
     endToEndEncryptionEnabled: true
     serverFarmId: appSrvcPlan.id
     virtualNetworkSubnetId: integrationSubnetId
@@ -173,6 +180,29 @@ resource webApp 'Microsoft.Web/sites@2023-12-01' = {
         {
           name: 'WEBSITE_TIME_ZONE'
           value: timeZone
+        }
+      ]
+      ipSecurityRestrictionsDefaultAction: publicNetworkAccessEnabled ? 'Deny' : 'Allow'
+      scmIpSecurityRestrictionsDefaultAction: publicNetworkAccessEnabled ? 'Deny' : 'Allow'
+      scmIpSecurityRestrictionsUseMain: false
+
+      ipSecurityRestrictions: [
+        for (cidr, i) in allowedPublicIpCidrs: {
+          name: 'Allowed-Public-IP-${i + 1}'
+          ipAddress: cidr
+          action: 'Allow'
+          priority: 100 + i
+          description: 'Approved administrative public IP CIDR'
+        }
+      ]
+
+      scmIpSecurityRestrictions: [
+        for (cidr, i) in allowedPublicIpCidrs: {
+          name: 'Allowed-Public-IP-${i + 1}'
+          ipAddress: cidr
+          action: 'Allow'
+          priority: 100 + i
+          description: 'Approved administrative public IP CIDR'
         }
       ]
     }

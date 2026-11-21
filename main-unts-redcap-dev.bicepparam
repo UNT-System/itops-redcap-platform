@@ -11,6 +11,12 @@ param sequence = 1
 param identityObjectId = 'edc3bec0-2d45-495d-ab8c-6a0de54c051c'
 param vnetAddressSpace = '10.240.10.0/24'
 
+// DEV-only administrative access through UNT VPN.
+// Revalidate against official VPN egress ranges before QA/PROD.
+param appServicePublicNetworkAccessEnabled = true
+param appServiceAllowedPublicIpCidrs = [
+  '129.120.67.2/32'
+]
 // There are two options for obtaining the REDCap zip file:
 // 1. Specify a URL to a publicly accessible zip file.
 //    This URL should not require authentication of any kind. For example, an Azure blob storage URL with a SAS token is supported.

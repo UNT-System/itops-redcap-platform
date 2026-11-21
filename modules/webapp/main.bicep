@@ -31,6 +31,9 @@ param appInsights_instrumentationKey string
 
 param enablePrivateEndpoint bool
 
+param publicNetworkAccessEnabled bool = false
+param allowedPublicIpCidrs array = []
+
 param scmRepoUrl string
 param scmRepoBranch string
 @secure()
@@ -74,6 +77,9 @@ module appService 'webapp.bicep' = {
       ? privateDns.outputs.privateDnsId
       : '${existingPrivateDnsZonesResourceGroupId}/providers/Microsoft.Network/privateDnsZones/${privateDnsZoneName}'
     integrationSubnetId: integrationSubnetId
+
+    publicNetworkAccessEnabled: publicNetworkAccessEnabled
+    allowedPublicIpCidrs: allowedPublicIpCidrs
 
     appInsights_connectionString: appInsights_connectionString
     appInsights_instrumentationKey: appInsights_instrumentationKey

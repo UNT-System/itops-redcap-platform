@@ -47,6 +47,12 @@ param deploymentTime string = utcNow()
 
 param enableAppServicePrivateEndpoint bool = true
 
+@description('Whether the App Service public endpoint is enabled.')
+param appServicePublicNetworkAccessEnabled bool = false
+
+@description('Public IPv4 CIDRs permitted to access REDCap and SCM/Kudu.')
+param appServiceAllowedPublicIpCidrs array = []
+
 @description('The password to use for the MySQL Flexible Server admin account \'sqladmin\'.')
 @secure()
 param sqlPassword string
@@ -441,6 +447,9 @@ module webAppModule './modules/webapp/main.bicep' = {
     customTags: {
       workloadType: 'webApp'
     }
+
+    publicNetworkAccessEnabled: appServicePublicNetworkAccessEnabled
+    allowedPublicIpCidrs: appServiceAllowedPublicIpCidrs
 
     existingPrivateDnsZonesResourceGroupId: existingPrivateDnsZonesResourceGroupId
     privateDnsZoneName: 'privatelink.azurewebsites.net'
