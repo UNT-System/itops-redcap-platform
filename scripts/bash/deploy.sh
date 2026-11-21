@@ -1,4 +1,5 @@
 #!/bin/bash
+set -eo pipefail
 
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
@@ -52,7 +53,7 @@ if [ -z "$APPSETTING_redcapAppZip" ]; then
     export APPSETTING_zipVersion="latest"
   fi
   
-  wget --method=post -O $redcapZipPath -q --body-data="username=$APPSETTING_redcapCommunityUsername&password=$APPSETTING_redcapCommunityPassword&version=$APPSETTING_zipVersion&install=1" --header=Content-Type:application/x-www-form-urlencoded https://redcap.vumc.org/plugins/redcap_consortium/versions.php
+  wget --method=post -O "$redcapZipPath" -q --body-data="username=$APPSETTING_redcapCommunityUsername&password=$APPSETTING_redcapCommunityPassword&version=$APPSETTING_zipVersion&install=1" --header=Content-Type:application/x-www-form-urlencoded https://redcap.vumc.org/plugins/redcap_consortium/versions.php
 
   # check to see if the redcap.zip file contains the word error
   if [ -z "$(grep -i error redcap.zip)" ]; then
@@ -64,19 +65,31 @@ if [ -z "$APPSETTING_redcapAppZip" ]; then
 
 else
   echo "Downloading REDCap zip file from storage" >> /home/site/log-$stamp.txt
-  wget -q -O $redcapZipPath $APPSETTING_redcapAppZip
+  wget -q -O "$redcapZipPath" "$APPSETTING_redcapAppZip"
+fi
+
+if [ ! -s "$redcapZipPath" ]; then
+  echo "ERROR: REDCap ZIP was not downloaded or is empty." >> "/home/site/log-$stamp.txt"
+  exit 1
+fi
+
+echo "Downloaded REDCap ZIP size: $(stat -c%s "$redcapZipPath") bytes" >> "/home/site/log-$stamp.txt"
+
+if ! unzip -tq "$redcapZipPath" >/dev/null; then
+  echo "ERROR: Downloaded REDCap artifact is not a valid ZIP file." >> "/home/site/log-$stamp.txt"
+  exit 1
 fi
 
 echo "Unzipping redcap.zip" >> /home/site/log-$stamp.txt
 
 rm -rf /home/site/wwwroot/*
-unzip -oq $redcapZipPath -d /tmp/wwwroot 
+unzip -oq "$redcapZipPath" -d /tmp/wwwroot
 
 echo "Moving REDCap files to wwwroot" >> /home/site/log-$stamp.txt
 
 mv -f /tmp/wwwroot/redcap/* /home/site/wwwroot/
 rm -rf /tmp/wwwroot
-rm -f $redcapZipPath
+rm -f "$redcapZipPath"
 
 ####################################################################################
 #
